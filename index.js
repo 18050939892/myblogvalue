@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // 设置静态文件目录
 app.use(express.static('public'));
-
+app.use(express.json());
 
 app.use(cors({
   origin: '*',
@@ -96,7 +96,7 @@ app.get('/comments', async (req, res) => {
 
 app.post('/comments', async (req, res) => {
   const MONGODB_URI = process.env.MONGODB_URI;
-  const newComment = await req.json();
+  const newComment = req.body;
   const client = new MongoClient(MONGODB_URI);
   await client.connect();
   const database = client.db("blog");
