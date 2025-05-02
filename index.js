@@ -63,13 +63,6 @@ app.get('/api/info', (req, res) => {
 
 
 app.get('/blog', async (req, res) => {
-  // const data = await req.json();
-  // const {
-  //   slug,
-  //   updates,
-  //   update
-  // } = data;
-
   const MONGODB_URI = process.env.MONGODB_URI;
   const client = new MongoClient(MONGODB_URI);
   await client.connect();
@@ -83,7 +76,42 @@ app.get('/blog', async (req, res) => {
     message: "获取所有评论成功",
     comments: allBlogs
   });
+});
 
+app.get('/comments', async (req, res) => {
+  const MONGODB_URI = process.env.MONGODB_URI;
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const database = client.db("blog");
+  const comments = database.collection("comments");
+
+  const allComments = await comments.find({}).toArray();
+
+  return res.status(200).json({
+    success: true,
+    message: "获取所有评论成功",
+    comments: allComments
+  });
+});
+
+app.post('/comments', async (req, res) => {
+  const MONGODB_URI = process.env.MONGODB_URI;
+  const newComment = await req.json();
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const database = client.db("blog");
+  const comments = database.collection("comments");
+  const commentWithDate = {
+    ...newComment,
+    date: new Date().toISOString(),
+  };
+
+  // 添加新评论
+  await comments.insertOne(commentWithDate);
+  return res.status(200).json({
+    success: true,
+    message: "更新成功",
+  });
 });
 
 
