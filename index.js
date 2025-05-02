@@ -65,17 +65,22 @@ app.get('/api/info', (req, res) => {
 app.get('/blog', async (req, res) => {
   const MONGODB_URI = process.env.MONGODB_URI;
   const client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  const database = client.db("blog");
-  const blog = database.collection("blog");
+  try{
+    await client.connect();
+    const database = client.db("blog");
+    const blog = database.collection("blog");
 
-  const allBlogs = await blog.find({}).toArray();
+    const allBlogs = await blog.find({}).toArray();
 
-  return res.status(200).json({
-    success: true,
-    message: "获取所有评论成功",
-    comments: allBlogs
-  });
+    return res.status(200).json({
+      success: true,
+      message: "获取所有评论成功",
+      comments: allBlogs
+    });
+  }finally {
+    await client.close();
+  }
+
 });
 
 app.post('/blog', async (req, res) => {
@@ -83,32 +88,38 @@ app.post('/blog', async (req, res) => {
   const { slug, updates , update} = data;
   const MONGODB_URI = process.env.MONGODB_URI;
   const client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  const database = client.db("blog");
-  const blog = database.collection("blog");
+  try{
+    await client.connect();
+    const database = client.db("blog");
+    const blog = database.collection("blog");
 
-  const commentWithDate = {
-    content:updates.content,
-    ...updates.frontmatter,
+    const commentWithDate = {
+      content:updates.content,
+      ...updates.frontmatter,
 
-  };
+    };
     updates.frontmatter.pubDatetime = new Date(updates.frontmatter.pubDatetime);
     await blog.insertOne(commentWithDate);
 
 
-  return res.status(200).json({
-    success: true,
-    message: `创建成功`,
-  });
+    return res.status(200).json({
+      success: true,
+      message: `创建成功`,
+    });
+  }finally {
+    await client.close();
+  }
+
 });
 app.put('/blog', async (req, res) => {
   const data = req.body;
   const { slug, updates , update} = data;
   const MONGODB_URI = process.env.MONGODB_URI;
   const client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  const database = client.db("blog");
-  const blog = database.collection("blog");
+  try{
+    await client.connect();
+    const database = client.db("blog");
+    const blog = database.collection("blog");
 
 
     const oldPubDatetime = await blog.find({title:updates.frontmatter.title}).toArray();
@@ -119,46 +130,60 @@ app.put('/blog', async (req, res) => {
       {  $set: {...updates.frontmatter,content:updates.content }} // 将新评论添加到评论数组
     );
 
-  return res.status(200).json({
-    success: true,
-    message: `编辑成功`,
-  });
+    return res.status(200).json({
+      success: true,
+      message: `编辑成功`,
+    });
+  }finally {
+    await client.close();
+  }
+
 });
 
 app.get('/comments', async (req, res) => {
   const MONGODB_URI = process.env.MONGODB_URI;
   const client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  const database = client.db("blog");
-  const comments = database.collection("comments");
+  try{
+    await client.connect();
+    const database = client.db("blog");
+    const comments = database.collection("comments");
 
-  const allComments = await comments.find({}).toArray();
+    const allComments = await comments.find({}).toArray();
 
-  return res.status(200).json({
-    success: true,
-    message: "获取所有评论成功",
-    comments: allComments
-  });
+    return res.status(200).json({
+      success: true,
+      message: "获取所有评论成功",
+      comments: allComments
+    });
+  }finally {
+    await client.close();
+  }
+
 });
 
 app.post('/comments', async (req, res) => {
   const MONGODB_URI = process.env.MONGODB_URI;
   const newComment = req.body;
   const client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  const database = client.db("blog");
-  const comments = database.collection("comments");
-  const commentWithDate = {
-    ...newComment,
-    date: new Date().toISOString(),
-  };
+  try{
+    await client.connect();
+    const database = client.db("blog");
+    const comments = database.collection("comments");
+    const commentWithDate = {
+      ...newComment,
+      date: new Date().toISOString(),
+    };
 
-  // 添加新评论
-  await comments.insertOne(commentWithDate);
-  return res.status(200).json({
-    success: true,
-    message: "更新成功",
-  });
+    // 添加新评论
+    await comments.insertOne(commentWithDate);
+    return res.status(200).json({
+      success: true,
+      message: "更新成功",
+    });
+  }finally {
+    await client.close();
+  }
+
 });
 
 
