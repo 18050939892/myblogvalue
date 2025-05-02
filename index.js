@@ -1,7 +1,8 @@
-const express = require('express');
+import 'dotenv/config';
+import express from 'express';
 const app = express();
 const port = process.env.PORT || 3000;
-
+import { MongoClient } from 'mongodb'
 // 启用 JSON 解析中间件
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -50,6 +51,38 @@ app.get('/api/info', (req, res) => {
     time: new Date().toISOString()
   });
 });
+
+
+app.get('/blog', async (req, res) => {
+  // const data = await req.json();
+  // const {
+  //   slug,
+  //   updates,
+  //   update
+  // } = data;
+
+  const MONGODB_URI = import.meta.env.MONGODB_URI;
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const database = client.db("blog");
+  const blog = database.collection("blog");
+
+  const allBlogs = await blog.find({}).toArray();
+
+  return new res(
+    JSON.stringify({
+      success: true,
+      message: "获取所有评论成功",
+      comments: allBlogs
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
+  );
+
+});
+
+
+
+
 
 // 启动服务器
 app.listen(port, () => {
