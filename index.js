@@ -13,9 +13,9 @@ app.use(express.static('public'));
 
 
 app.use(cors({
-  origin: ['http://localhost:4321', 'https://my-blog-inky-sigma.vercel.app/'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: '*'
 }));
 
 
