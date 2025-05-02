@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 const app = express();
 const port = process.env.PORT || 3000;
 import { MongoClient } from 'mongodb'
@@ -9,6 +10,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // 设置静态文件目录
 app.use(express.static('public'));
+
+
+app.use(cors({
+  origin: ['http://localhost:4321', 'https://my-blog-inky-sigma.vercel.app/'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 
 // 创建一个简单的首页路由
 app.get('/', (req, res) => {
