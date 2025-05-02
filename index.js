@@ -92,7 +92,25 @@ app.post('/blog', async (req, res) => {
     ...updates.frontmatter,
 
   };
-  if(update){
+    updates.frontmatter.pubDatetime = new Date(updates.frontmatter.pubDatetime);
+    await blog.insertOne(commentWithDate);
+
+
+  return res.status(200).json({
+    success: true,
+    message: `创建成功`,
+  });
+});
+app.put('/blog', async (req, res) => {
+  const data = req.body;
+  const { slug, updates , update} = data;
+  const MONGODB_URI = process.env.MONGODB_URI;
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const database = client.db("blog");
+  const blog = database.collection("blog");
+
+
     const oldPubDatetime = await blog.find({title:updates.frontmatter.title}).toArray();
     updates.frontmatter.modDatetime = new Date(updates.frontmatter.pubDatetime);
     updates.frontmatter.pubDatetime = new Date(oldPubDatetime[0].pubDatetime);
@@ -100,14 +118,10 @@ app.post('/blog', async (req, res) => {
       { title: updates.frontmatter.title}, // 查询条件，找到要更新的文档
       {  $set: {...updates.frontmatter,content:updates.content }} // 将新评论添加到评论数组
     );
-  }else{
-    updates.frontmatter.pubDatetime = new Date(updates.frontmatter.pubDatetime);
-    await blog.insertOne(commentWithDate);
-  }
 
   return res.status(200).json({
     success: true,
-    message: `${update?'编辑':'创建'}成功`,
+    message: `编辑成功`,
   });
 });
 
