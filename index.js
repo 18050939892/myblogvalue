@@ -307,6 +307,26 @@ apiRouter.put('/myMoney', async (req, res) => {
 });
 
 
+apiRouter.put('/addComment', async (req, res) => {
+  try {
+    const { comment,id } = req.body;
+    const item = AV.Object.createWithoutData('AllGoods', id);
+
+    await item.fetch().then(async (result) => {
+      const currentMoney = item.get('comment') || [];
+      item.set('comment',[...currentMoney, comment]);
+      return item.save();
+    })
+
+    res.json({
+      id: item.id,
+      ...item.toJSON()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 apiRouter.delete('/myGoods', async (req, res) => {
   try {
     const { id } = req.body;
